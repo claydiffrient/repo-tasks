@@ -1,7 +1,9 @@
 use anyhow::{bail, Result};
+use console::style;
 use std::fs;
 use std::path::Path;
 
+use crate::utils;
 use crate::Config;
 
 /// Initialize a new repo-tasks repository
@@ -25,9 +27,15 @@ pub fn init(project_name: Option<String>) -> Result<()> {
     config.write()?;
 
     let project_display = project_name.unwrap_or_else(|| config.project_name.clone());
-    println!("✓ Initialized repo-tasks for '{}'", project_display);
-    println!("  Created .repo-tasks/config.json");
-    println!("  Created task directories: todo, in-progress, testing, done");
+    utils::success(&format!(
+        "Initialized repo-tasks for '{}'",
+        style(&project_display).bold()
+    ));
+    println!("  {}", style("Created .repo-tasks/config.json").dim());
+    println!(
+        "  {}",
+        style("Created task directories: todo, in-progress, testing, done").dim()
+    );
 
     Ok(())
 }
@@ -82,6 +90,9 @@ mod tests {
         env::set_current_dir(&original_dir).unwrap();
 
         assert!(second_result.is_err());
-        assert!(second_result.unwrap_err().to_string().contains("already initialized"));
+        assert!(second_result
+            .unwrap_err()
+            .to_string()
+            .contains("already initialized"));
     }
 }

@@ -3,6 +3,7 @@ use clap::{Parser, Subcommand};
 
 mod commands;
 mod models;
+mod utils;
 
 use commands::{init, list, move_task, new, open, save, search, show, update};
 use models::{Config, Task};

@@ -1,7 +1,9 @@
 use anyhow::{bail, Result};
+use console::style;
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
+use crate::utils;
 use crate::{Config, Task};
 
 /// List all tasks in a given status
@@ -16,7 +18,11 @@ pub fn list(status: Option<String>, priority: Option<String>, tag: Option<String
 
     // Validate status
     if !config.statuses.contains(&status) {
-        bail!("Invalid status '{}'. Valid statuses: {}", status, config.statuses.join(", "));
+        bail!(
+            "Invalid status '{}'. Valid statuses: {}",
+            status,
+            config.statuses.join(", ")
+        );
     }
 
     // Validate priority if provided
@@ -83,33 +89,34 @@ pub fn list(status: Option<String>, priority: Option<String>, tag: Option<String
     });
 
     // Print header
-    let mut header = format!("Tasks in '{}' ({} total)", status, tasks.len());
+    let mut header = format!("Tasks in {}", style(&status).bold().cyan());
+    header.push_str(&format!(" ({} total)", style(tasks.len()).bold()));
+
     if let Some(ref p) = priority {
-        header.push_str(&format!(" [priority: {}]", p));
+        header.push_str(&format!(" [priority: {}]", style(p).yellow()));
     }
     if let Some(ref t) = tag {
-        header.push_str(&format!(" [tag: {}]", t));
+        header.push_str(&format!(" [tag: {}]", style(t).cyan()));
     }
-    println!("{}:", header);
+    println!("{}", header);
     println!();
 
     // Print tasks
     for task in tasks {
         let task_priority = task.priority.as_deref().unwrap_or("Medium");
-        let priority_symbol = match task_priority {
-            "Critical" => "🔴",
-            "High" => "🟠",
-            "Medium" => "🟡",
-            "Low" => "🟢",
-            _ => "⚪",
-        };
+        let priority_display = utils::priority_badge(task_priority);
+        let id_display = utils::task_id(&task.id);
+        let slug_display = utils::task_slug(&task.slug);
 
-        print!("{} [{}] {} - {}", priority_symbol, task.id, task.slug, task.title);
+        print!(
+            "{} [{}] {} - {}",
+            priority_display, id_display, slug_display, task.title
+        );
 
         // Show tags if present
-        if let Some(tags) = &task.tags {
-            if !tags.is_empty() {
-                print!(" ({})", tags.join(", "));
+        if let Some(task_tags) = &task.tags {
+            if !task_tags.is_empty() {
+                print!(" {}", utils::tags(task_tags));
             }
         }
 

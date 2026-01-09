@@ -18,10 +18,7 @@ impl Config {
         let project_name = project_name.unwrap_or_else(|| {
             std::env::current_dir()
                 .ok()
-                .and_then(|p| {
-                    p.file_name()
-                        .map(|n| n.to_string_lossy().to_string())
-                })
+                .and_then(|p| p.file_name().map(|n| n.to_string_lossy().to_string()))
                 .unwrap_or_else(|| "my-project".to_string())
         });
 
@@ -49,8 +46,7 @@ impl Config {
         let content = fs::read_to_string(&path)
             .context(format!("Failed to read config file: {}", path.display()))?;
 
-        serde_json::from_str(&content)
-            .context("Failed to parse config.json")
+        serde_json::from_str(&content).context("Failed to parse config.json")
     }
 
     /// Write config to .repo-tasks/config.json
@@ -64,8 +60,7 @@ impl Config {
         }
 
         // Serialize to pretty JSON
-        let content = serde_json::to_string_pretty(&self)
-            .context("Failed to serialize config")?;
+        let content = serde_json::to_string_pretty(&self).context("Failed to serialize config")?;
 
         fs::write(&path, content)
             .context(format!("Failed to write config file: {}", path.display()))?;

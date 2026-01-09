@@ -83,8 +83,8 @@ impl Task {
 
         // Parse YAML frontmatter (skip first empty part)
         let frontmatter = parts[1].trim();
-        let mut task: Task = serde_yaml::from_str(frontmatter)
-            .context("Failed to parse task frontmatter")?;
+        let mut task: Task =
+            serde_yaml::from_str(frontmatter).context("Failed to parse task frontmatter")?;
 
         // Extract body
         let body = parts[2].trim().to_string();
@@ -129,8 +129,8 @@ impl Task {
         }
 
         // Serialize frontmatter
-        let frontmatter = serde_yaml::to_string(&self)
-            .context("Failed to serialize task frontmatter")?;
+        let frontmatter =
+            serde_yaml::to_string(&self).context("Failed to serialize task frontmatter")?;
 
         // Construct full content
         let content = format!("---\n{}---\n\n{}", frontmatter, self.body);
@@ -170,10 +170,7 @@ mod tests {
 
     #[test]
     fn test_new_task() {
-        let task = Task::new(
-            "Test Task".to_string(),
-            "High".to_string(),
-        );
+        let task = Task::new("Test Task".to_string(), "High".to_string());
 
         assert_eq!(task.title, "Test Task");
         assert_eq!(task.priority, Some("High".to_string()));

@@ -1,7 +1,9 @@
 use anyhow::{bail, Result};
+use console::style;
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
+use crate::utils;
 use crate::{Config, Task};
 
 /// Show details of a specific task
@@ -36,35 +38,47 @@ pub fn show(slug_or_id: String) -> Result<()> {
 
     match found_task {
         Some(task) => {
-            println!("Task: {}", task.title);
-            println!("ID: {}", task.id);
-            println!("Slug: {}", task.slug);
-            println!("Status: {}", task.status);
+            println!(
+                "{}: {}",
+                style("Task").bold(),
+                style(&task.title).bold().cyan()
+            );
+            println!("{}: {}", style("ID").dim(), utils::task_id(&task.id));
+            println!("{}: {}", style("Slug").dim(), utils::task_slug(&task.slug));
+            println!(
+                "{}: {}",
+                style("Status").dim(),
+                utils::status_badge(&task.status)
+            );
 
             if let Some(priority) = &task.priority {
-                println!("Priority: {}", priority);
+                println!(
+                    "{}: {}",
+                    style("Priority").dim(),
+                    utils::priority_badge(priority)
+                );
             }
 
             if let Some(tags) = &task.tags {
                 if !tags.is_empty() {
-                    println!("Tags: {}", tags.join(", "));
+                    println!("{}: {}", style("Tags").dim(), utils::tags(tags));
                 }
             }
 
             if let Some(blocks) = &task.blocks {
                 if !blocks.is_empty() {
-                    println!("Blocks: {}", blocks.join(", "));
+                    println!("{}: {}", style("Blocks").dim(), blocks.join(", "));
                 }
             }
 
             if let Some(depends_on) = &task.depends_on {
                 if !depends_on.is_empty() {
-                    println!("Depends on: {}", depends_on.join(", "));
+                    println!("{}: {}", style("Depends on").dim(), depends_on.join(", "));
                 }
             }
 
             if !task.body.is_empty() {
-                println!("\nDescription:");
+                println!("\n{}:", style("Description").bold());
                 println!("{}", task.body);
             }
 

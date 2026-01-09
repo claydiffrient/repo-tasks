@@ -57,7 +57,8 @@ pub fn search(query: String) -> Result<()> {
                 }
 
                 // Extract task slug from filename
-                let filename = path_clone.file_name()
+                let filename = path_clone
+                    .file_name()
                     .and_then(|f| f.to_str())
                     .unwrap_or("unknown");
 

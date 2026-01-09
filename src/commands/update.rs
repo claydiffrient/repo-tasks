@@ -1,8 +1,10 @@
 use anyhow::{bail, Result};
+use console::style;
 use dialoguer::{Input, MultiSelect, Select};
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
+use crate::utils;
 use crate::{Config, Task};
 
 /// Update task properties
@@ -70,7 +72,9 @@ pub fn update(slug_or_id: String) -> Result<()> {
                 }
             }
             "Priority" => {
-                let current_idx = task.priority.as_ref()
+                let current_idx = task
+                    .priority
+                    .as_ref()
                     .and_then(|p| config.priorities.iter().position(|x| x == p))
                     .unwrap_or(1);
 
@@ -83,9 +87,7 @@ pub fn update(slug_or_id: String) -> Result<()> {
                 task.priority = Some(config.priorities[new_priority_idx].clone());
             }
             "Tags" => {
-                let current_tags = task.tags.as_ref()
-                    .map(|t| t.join(", "))
-                    .unwrap_or_default();
+                let current_tags = task.tags.as_ref().map(|t| t.join(", ")).unwrap_or_default();
 
                 let new_tags: String = Input::new()
                     .with_prompt("Tags (comma-separated)")
@@ -101,7 +103,7 @@ pub fn update(slug_or_id: String) -> Result<()> {
                             .split(',')
                             .map(|s| s.trim().to_string())
                             .filter(|s| !s.is_empty())
-                            .collect()
+                            .collect(),
                     );
                 }
             }
@@ -132,11 +134,11 @@ pub fn update(slug_or_id: String) -> Result<()> {
     // If path changed (due to slug change), remove old file
     if old_path != new_path {
         std::fs::remove_file(&old_path)?;
-        println!("✓ Updated task and renamed file");
-        println!("  Old: {}", old_path.display());
-        println!("  New: {}", new_path.display());
+        utils::success(&format!("Updated task and renamed file"));
+        println!("  Old: {}", style(old_path.display()).dim());
+        println!("  New: {}", style(new_path.display()).dim());
     } else {
-        println!("✓ Updated task: {}", task.slug);
+        utils::success(&format!("Updated task: {}", style(&task.slug).bold()));
     }
 
     Ok(())

@@ -47,9 +47,7 @@ pub fn save(message: Option<String>) -> Result<()> {
     println!();
 
     // Get or generate commit message
-    let commit_message = message.unwrap_or_else(|| {
-        generate_commit_message(&repo, &statuses)
-    });
+    let commit_message = message.unwrap_or_else(|| generate_commit_message(&repo, &statuses));
 
     // Stage .repo-tasks/ directory
     let mut index = repo.index()?;
@@ -73,7 +71,10 @@ pub fn save(message: Option<String>) -> Result<()> {
     )?;
 
     println!("✓ Committed changes:");
-    println!("  {}", commit_message.lines().next().unwrap_or(&commit_message));
+    println!(
+        "  {}",
+        commit_message.lines().next().unwrap_or(&commit_message)
+    );
 
     Ok(())
 }

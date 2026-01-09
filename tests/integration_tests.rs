@@ -9,7 +9,9 @@ fn test_cli_help() {
     cmd.arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("Fast task management for git repositories"));
+        .stdout(predicate::str::contains(
+            "Fast task management for git repositories",
+        ));
 }
 
 #[test]
@@ -28,7 +30,10 @@ fn test_init_command() {
     // Verify structure was created
     assert!(temp_dir.path().join(".repo-tasks/config.json").exists());
     assert!(temp_dir.path().join(".repo-tasks/tasks/todo").exists());
-    assert!(temp_dir.path().join(".repo-tasks/tasks/in-progress").exists());
+    assert!(temp_dir
+        .path()
+        .join(".repo-tasks/tasks/in-progress")
+        .exists());
     assert!(temp_dir.path().join(".repo-tasks/tasks/testing").exists());
     assert!(temp_dir.path().join(".repo-tasks/tasks/done").exists());
 }

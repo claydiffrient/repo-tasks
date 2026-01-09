@@ -1,6 +1,8 @@
 use anyhow::{bail, Result};
+use console::style;
 use dialoguer::{Input, Select};
 
+use crate::utils;
 use crate::{Config, Task};
 
 /// Create a new task interactively
@@ -13,9 +15,7 @@ pub fn new() -> Result<()> {
     let config = Config::load()?;
 
     // Prompt for title
-    let title: String = Input::new()
-        .with_prompt("Task title")
-        .interact_text()?;
+    let title: String = Input::new().with_prompt("Task title").interact_text()?;
 
     if title.trim().is_empty() {
         bail!("Task title cannot be empty");
@@ -37,10 +37,13 @@ pub fn new() -> Result<()> {
     // Save task
     task.to_file(&path)?;
 
-    println!("✓ Created task: {}", task.slug);
-    println!("  ID: {}", task.id);
-    println!("  Priority: {}", task.priority.as_ref().unwrap());
-    println!("  File: {}", path.display());
+    utils::success(&format!("Created task: {}", style(&task.slug).bold()));
+    println!("  ID: {}", style(&task.id).dim());
+    println!(
+        "  Priority: {}",
+        utils::priority_badge(task.priority.as_ref().unwrap())
+    );
+    println!("  File: {}", style(path.display()).dim());
 
     Ok(())
 }

@@ -1,7 +1,9 @@
 use anyhow::{bail, Result};
+use console::style;
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
+use crate::utils;
 use crate::{Config, Task};
 
 /// Move a task to a different status
@@ -68,9 +70,15 @@ pub fn move_task(slug_or_id: String, new_status: String) -> Result<()> {
     // Remove from old location
     std::fs::remove_file(&old_path)?;
 
-    println!("✓ Moved task: {}", task.title);
-    println!("  From: {} → {}", old_status, new_status);
-    println!("  File: {}", new_path.display());
+    utils::success(&format!("Moved task: {}", style(&task.title).bold()));
+    println!(
+        "  {} {} {} {}",
+        style("From:").dim(),
+        utils::status_badge(&old_status),
+        style("→").dim(),
+        utils::status_badge(&new_status)
+    );
+    println!("  {}", style(new_path.display()).dim());
 
     Ok(())
 }
