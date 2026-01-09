@@ -1,0 +1,16 @@
+{
+  "project_name": "test-project",
+  "statuses": [
+    "todo",
+    "in-progress",
+    "testing",
+    "done"
+  ],
+  "priorities": [
+    "Low",
+    "Medium",
+    "High",
+    "Critical"
+  ],
+  "auto_commit": false
+}

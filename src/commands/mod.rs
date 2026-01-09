@@ -1,9 +1,19 @@
 pub mod init;
-pub mod new;
 pub mod list;
+pub mod move_task;
+pub mod new;
+pub mod open;
+pub mod save;
+pub mod search;
 pub mod show;
+pub mod update;
 
 pub use init::init;
-pub use new::new;
 pub use list::list;
+pub use move_task::move_task;
+pub use new::new;
+pub use open::open;
+pub use save::save;
+pub use search::search;
 pub use show::show;
+pub use update::update;

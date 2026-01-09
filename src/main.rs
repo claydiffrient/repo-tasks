@@ -4,7 +4,7 @@ use clap::{Parser, Subcommand};
 mod commands;
 mod models;
 
-use commands::{init, list, new, show};
+use commands::{init, list, move_task, new, open, save, search, show, update};
 use models::{Config, Task};
 
 #[derive(Parser)]
@@ -30,11 +30,45 @@ enum Commands {
     List {
         /// Status to list (defaults to "todo")
         status: Option<String>,
+        /// Filter by priority
+        #[arg(short, long)]
+        priority: Option<String>,
+        /// Filter by tag
+        #[arg(short, long)]
+        tag: Option<String>,
     },
     /// Show details of a specific task
     Show {
         /// Task slug or ID
         slug_or_id: String,
+    },
+    /// Update task properties
+    Update {
+        /// Task slug or ID
+        slug_or_id: String,
+    },
+    /// Move a task to a different status
+    Move {
+        /// Task slug or ID
+        slug_or_id: String,
+        /// New status (todo, in-progress, testing, done)
+        new_status: String,
+    },
+    /// Open a task in your default editor
+    Open {
+        /// Task slug or ID
+        slug_or_id: String,
+    },
+    /// Search for tasks by content
+    Search {
+        /// Search query (regex supported)
+        query: String,
+    },
+    /// Commit changes to the repository
+    Save {
+        /// Commit message (auto-generated if not provided)
+        #[arg(short, long)]
+        message: Option<String>,
     },
 }
 
@@ -48,11 +82,33 @@ fn main() -> Result<()> {
         Commands::New => {
             new()?;
         }
-        Commands::List { status } => {
-            list(status)?;
+        Commands::List {
+            status,
+            priority,
+            tag,
+        } => {
+            list(status, priority, tag)?;
         }
         Commands::Show { slug_or_id } => {
             show(slug_or_id)?;
+        }
+        Commands::Update { slug_or_id } => {
+            update(slug_or_id)?;
+        }
+        Commands::Move {
+            slug_or_id,
+            new_status,
+        } => {
+            move_task(slug_or_id, new_status)?;
+        }
+        Commands::Open { slug_or_id } => {
+            open(slug_or_id)?;
+        }
+        Commands::Search { query } => {
+            search(query)?;
+        }
+        Commands::Save { message } => {
+            save(message)?;
         }
     }
 

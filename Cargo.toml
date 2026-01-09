@@ -30,8 +30,18 @@ chrono = "0.4"
 # String manipulation
 slug = "0.1"
 
+# Search
+grep-searcher = "0.1"
+grep-matcher = "0.1"
+grep-regex = "0.1"
+
+# Git integration
+git2 = "0.19"
+
 [dev-dependencies]
 tempfile = "3.24"
+assert_cmd = "2.0"
+predicates = "3.0"
 
 [profile.release]
 opt-level = 3          # Maximum optimization

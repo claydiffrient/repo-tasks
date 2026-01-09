@@ -5,7 +5,7 @@ use walkdir::WalkDir;
 use crate::{Config, Task};
 
 /// List all tasks in a given status
-pub fn list(status: Option<String>) -> Result<()> {
+pub fn list(status: Option<String>, priority: Option<String>, tag: Option<String>) -> Result<()> {
     // Check if initialized
     if !Config::is_initialized() {
         bail!("Not in a repo-tasks repository. Run 'tasks init' first.");
@@ -17,6 +17,17 @@ pub fn list(status: Option<String>) -> Result<()> {
     // Validate status
     if !config.statuses.contains(&status) {
         bail!("Invalid status '{}'. Valid statuses: {}", status, config.statuses.join(", "));
+    }
+
+    // Validate priority if provided
+    if let Some(ref p) = priority {
+        if !config.priorities.contains(p) {
+            bail!(
+                "Invalid priority '{}'. Valid priorities: {}",
+                p,
+                config.priorities.join(", ")
+            );
+        }
     }
 
     // Build path to status directory
@@ -36,32 +47,56 @@ pub fn list(status: Option<String>) -> Result<()> {
         .filter_map(|e| Task::from_file(e.path()).ok())
         .collect();
 
+    // Apply filters
+    if let Some(ref filter_priority) = priority {
+        tasks.retain(|t| t.priority.as_ref() == Some(filter_priority));
+    }
+
+    if let Some(ref filter_tag) = tag {
+        tasks.retain(|t| {
+            t.tags
+                .as_ref()
+                .map(|tags| tags.iter().any(|t| t == filter_tag))
+                .unwrap_or(false)
+        });
+    }
+
     if tasks.is_empty() {
-        println!("No tasks in status '{}'", status);
+        let mut msg = format!("No tasks in status '{}'", status);
+        if priority.is_some() || tag.is_some() {
+            msg.push_str(" matching filters");
+        }
+        println!("{}", msg);
         return Ok(());
     }
 
     // Sort by priority (Critical > High > Medium > Low)
     tasks.sort_by(|a, b| {
-        let priority_rank = |p: &Option<String>| {
-            match p.as_deref() {
-                Some("Critical") => 0,
-                Some("High") => 1,
-                Some("Medium") => 2,
-                Some("Low") => 3,
-                _ => 4,
-            }
+        let priority_rank = |p: &Option<String>| match p.as_deref() {
+            Some("Critical") => 0,
+            Some("High") => 1,
+            Some("Medium") => 2,
+            Some("Low") => 3,
+            _ => 4,
         };
         priority_rank(&a.priority).cmp(&priority_rank(&b.priority))
     });
 
-    // Print tasks
-    println!("Tasks in '{}' ({} total):", status, tasks.len());
+    // Print header
+    let mut header = format!("Tasks in '{}' ({} total)", status, tasks.len());
+    if let Some(ref p) = priority {
+        header.push_str(&format!(" [priority: {}]", p));
+    }
+    if let Some(ref t) = tag {
+        header.push_str(&format!(" [tag: {}]", t));
+    }
+    println!("{}:", header);
     println!();
 
+    // Print tasks
     for task in tasks {
-        let priority = task.priority.as_deref().unwrap_or("Medium");
-        let priority_symbol = match priority {
+        let task_priority = task.priority.as_deref().unwrap_or("Medium");
+        let priority_symbol = match task_priority {
             "Critical" => "🔴",
             "High" => "🟠",
             "Medium" => "🟡",
@@ -69,7 +104,16 @@ pub fn list(status: Option<String>) -> Result<()> {
             _ => "⚪",
         };
 
-        println!("{} [{}] {} - {}", priority_symbol, task.id, task.slug, task.title);
+        print!("{} [{}] {} - {}", priority_symbol, task.id, task.slug, task.title);
+
+        // Show tags if present
+        if let Some(tags) = &task.tags {
+            if !tags.is_empty() {
+                print!(" ({})", tags.join(", "));
+            }
+        }
+
+        println!();
     }
 
     Ok(())
