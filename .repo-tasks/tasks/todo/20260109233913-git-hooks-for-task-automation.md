@@ -53,13 +53,48 @@ git commit -m "[20260109120001] Add cross-platform builds [done]"
 
 ### 3. pre-commit Hook
 
-**Purpose:** Validate task references and prevent commits to protected statuses
+**Purpose:** Validate task references, prevent commits to protected statuses, and enforce proper commit workflow
 
 **Validations:**
 - Warn if committing without task reference in branch/message
 - Check if referenced task exists
 - Prevent commits if task is in `done` status (configurable)
 - Validate task ID format
+- **NEW: Prevent .repo-tasks files from being committed in regular git commits**
+
+**Task File Protection:**
+
+Prevent accidental inclusion of task files in regular commits:
+
+```bash
+# If any staged files are in .repo-tasks/ directory:
+git commit -m "Add feature"
+# Error: Cannot commit task files with regular git commit
+#
+# The following task files are staged:
+#   - .repo-tasks/tasks/todo/20260109120001-task.md
+#   - .repo-tasks/tasks/done/20260109120002-task.md
+#
+# Task files should only be committed with 'tasks save'
+#
+# To fix:
+#   1. Unstage task files: git restore --staged .repo-tasks/
+#   2. Commit project files: git commit -m "Your message"
+#   3. Then save task files: tasks save
+#
+# Or use --no-verify to bypass this check (not recommended)
+```
+
+**Configuration:**
+- Configurable via `.repo-tasks/config.json`
+- Can be disabled with `"enforce_task_workflow": false`
+- Bypassed with `git commit --no-verify` if needed
+
+**Benefits:**
+- Enforces clean commit separation (project vs tasks)
+- Prevents accidental task file commits
+- Complements the `tasks save` validation
+- Educates users about proper workflow
 
 ### 4. post-checkout Hook
 
@@ -102,6 +137,7 @@ Add to `.repo-tasks/config.json`:
     "enabled": true,
     "auto_status_update": true,
     "require_task_reference": false,
+    "enforce_task_workflow": true,
     "keywords": {
       "done": ["done", "complete", "finished", "closes", "fixes"],
       "testing": ["testing", "review", "ready"],
