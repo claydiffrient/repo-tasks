@@ -1,12 +1,18 @@
 ---
-ID: "20260109233913"
+ID: '20260109233913'
 Title: Add git hooks for automated task status updates
 Priority: High
 Tags:
-  - git
-  - automation
-  - workflow
-  - hooks
+- git
+- automation
+- workflow
+- hooks
+DependsOn:
+- '20260110142105'
+- '20260110142106'
+- '20260110142107'
+- '20260110142108'
+- '20260110142109'
 ---
 
 ## Overview
