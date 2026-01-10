@@ -244,8 +244,26 @@ fn get_hook_template(hook_type: &HookType) -> String {
             r#"{}
 # Pre-commit hook: Validate task references and prevent .repo-tasks commits
 
-echo "repo-tasks: pre-commit hook (placeholder)"
-# TODO: Implement validation logic
+# Check for staged .repo-tasks files
+STAGED_TASKS=$(git diff --cached --name-only | grep "^\.repo-tasks/")
+
+if [ -n "$STAGED_TASKS" ]; then
+  echo "Error: Cannot commit task files with regular git commit"
+  echo ""
+  echo "The following task files are staged:"
+  echo "$STAGED_TASKS" | sed 's/^/  - /'
+  echo ""
+  echo "Task files should only be committed with 'tasks save'"
+  echo ""
+  echo "To fix:"
+  echo "  1. Unstage task files: git restore --staged .repo-tasks/"
+  echo "  2. Commit project files: git commit -m \"Your message\""
+  echo "  3. Then save task files: tasks save"
+  echo ""
+  echo "Or use --no-verify to bypass this check (not recommended)"
+  exit 1
+fi
+
 exit 0
 "#,
             common_header
