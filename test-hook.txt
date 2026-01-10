@@ -1,3 +1,4 @@
 Testing the post-commit hook for automatic task status updates.
 Testing WIP keyword
 Testing review keyword
+Testing closes keyword
