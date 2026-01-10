@@ -37,6 +37,7 @@ chrono = "0.4"
 
 # String manipulation
 slug = "0.1"
+regex = "1.10"
 
 # Search
 grep-searcher = "0.1"
