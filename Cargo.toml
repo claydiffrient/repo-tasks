@@ -5,6 +5,12 @@ edition = "2021"
 authors = ["Clay Diffrient"]
 description = "Fast task management for git repositories"
 license = "MIT OR Apache-2.0"
+repository = "https://github.com/claydiffrient/repo-tasks"
+homepage = "https://github.com/claydiffrient/repo-tasks"
+documentation = "https://github.com/claydiffrient/repo-tasks#readme"
+readme = "README.md"
+keywords = ["task", "management", "cli", "git", "productivity"]
+categories = ["command-line-utilities", "development-tools"]
 
 [dependencies]
 # CLI framework
