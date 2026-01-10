@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 authors = ["Clay Diffrient"]
 description = "Fast task management for git repositories"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 # CLI framework
