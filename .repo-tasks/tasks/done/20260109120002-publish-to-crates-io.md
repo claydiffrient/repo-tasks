@@ -1,11 +1,11 @@
 ---
-ID: "20260109120002"
+ID: '20260109120002'
 Title: Publish to crates.io
 Priority: High
 Tags:
-  - phase-4
-  - distribution
-  - release
+- phase-4
+- distribution
+- release
 ---
 
 Publish repo-tasks to crates.io for easy installation via `cargo install repo-tasks`.
