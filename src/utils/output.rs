@@ -6,16 +6,19 @@ pub fn success(msg: &str) {
 }
 
 /// Print an info message in blue
+#[allow(dead_code)]
 pub fn info(msg: &str) {
     println!("{} {}", style("ℹ").blue().bold(), msg);
 }
 
 /// Print an error message in red
+#[allow(dead_code)]
 pub fn error(msg: &str) {
     eprintln!("{} {}", style("✗").red().bold(), msg);
 }
 
 /// Print a warning message in yellow
+#[allow(dead_code)]
 pub fn warning(msg: &str) {
     println!("{} {}", style("⚠").yellow().bold(), msg);
 }

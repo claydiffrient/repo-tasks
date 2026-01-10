@@ -134,7 +134,7 @@ pub fn update(slug_or_id: String) -> Result<()> {
     // If path changed (due to slug change), remove old file
     if old_path != new_path {
         std::fs::remove_file(&old_path)?;
-        utils::success(&format!("Updated task and renamed file"));
+        utils::success("Updated task and renamed file");
         println!("  Old: {}", style(old_path.display()).dim());
         println!("  New: {}", style(new_path.display()).dim());
     } else {
