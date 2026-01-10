@@ -5,7 +5,7 @@ mod commands;
 mod models;
 mod utils;
 
-use commands::{init, list, move_task, new, open, save, search, show, update};
+use commands::{hooks_install, hooks_list, hooks_uninstall, init, list, move_task, new, open, save, search, show, update};
 use models::{Config, Task};
 
 #[derive(Parser)]
@@ -84,6 +84,24 @@ enum Commands {
         #[arg(short, long)]
         message: Option<String>,
     },
+    /// Manage git hooks for task automation
+    Hooks {
+        #[command(subcommand)]
+        subcommand: HooksSubcommand,
+    },
+}
+
+#[derive(Subcommand)]
+enum HooksSubcommand {
+    /// Install git hooks for task automation
+    Install {
+        /// Install specific hook (pre-commit, post-commit, prepare-commit-msg, post-checkout)
+        hook_name: Option<String>,
+    },
+    /// Uninstall repo-tasks git hooks
+    Uninstall,
+    /// List installed git hooks
+    List,
 }
 
 fn main() -> Result<()> {
@@ -129,6 +147,17 @@ fn main() -> Result<()> {
         Commands::Save { message } => {
             save(message)?;
         }
+        Commands::Hooks { subcommand } => match subcommand {
+            HooksSubcommand::Install { hook_name } => {
+                hooks_install(hook_name)?;
+            }
+            HooksSubcommand::Uninstall => {
+                hooks_uninstall()?;
+            }
+            HooksSubcommand::List => {
+                hooks_list()?;
+            }
+        },
     }
 
     Ok(())

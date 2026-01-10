@@ -1,3 +1,4 @@
+pub mod hooks;
 pub mod init;
 pub mod list;
 pub mod move_task;
@@ -8,6 +9,7 @@ pub mod search;
 pub mod show;
 pub mod update;
 
+pub use hooks::{install as hooks_install, list as hooks_list, uninstall as hooks_uninstall};
 pub use init::init;
 pub use list::list;
 pub use move_task::move_task;
