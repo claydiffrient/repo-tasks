@@ -26,7 +26,20 @@ enum Commands {
         project_name: Option<String>,
     },
     /// Create a new task
-    New,
+    New {
+        /// Task title
+        #[arg(short, long)]
+        title: Option<String>,
+        /// Priority level (Critical, High, Medium, Low)
+        #[arg(short, long)]
+        priority: Option<String>,
+        /// Comma-separated tags
+        #[arg(short = 'g', long)]
+        tags: Option<String>,
+        /// Task description/notes
+        #[arg(short, long)]
+        notes: Option<String>,
+    },
     /// List tasks in a given status
     List {
         /// Status to list (defaults to "todo")
@@ -80,8 +93,13 @@ fn main() -> Result<()> {
         Commands::Init { project_name } => {
             init(project_name)?;
         }
-        Commands::New => {
-            new()?;
+        Commands::New {
+            title,
+            priority,
+            tags,
+            notes,
+        } => {
+            new(title, priority, tags, notes)?;
         }
         Commands::List {
             status,
