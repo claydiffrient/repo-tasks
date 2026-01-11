@@ -1,4 +1,5 @@
 use anyhow::{bail, Context, Result};
+use console;
 use git2::{Repository, Signature, StatusOptions};
 
 use crate::Config;
@@ -48,6 +49,41 @@ pub fn save(message: Option<String>) -> Result<()> {
 
     // Get or generate commit message
     let commit_message = message.unwrap_or_else(|| generate_commit_message(&repo, &statuses));
+
+    // Check for staged files outside .repo-tasks/
+    let index = repo.index()?;
+    let head_commit = repo.head()?.peel_to_commit()?;
+    let head_tree = head_commit.tree()?;
+    let diff = repo.diff_tree_to_index(Some(&head_tree), Some(&index), None)?;
+
+    let mut non_task_files = Vec::new();
+    diff.foreach(
+        &mut |delta, _| {
+            if let Some(path) = delta.new_file().path() {
+                let path_str = path.to_string_lossy();
+                if !path_str.starts_with(".repo-tasks/") {
+                    non_task_files.push(path_str.to_string());
+                }
+            }
+            true
+        },
+        None,
+        None,
+        None,
+    )?;
+
+    if !non_task_files.is_empty() {
+        eprintln!("\n{}", console::style("Error: Cannot commit non-task files with 'tasks save'").red().bold());
+        eprintln!("\nThe following staged files are outside .repo-tasks/:");
+        for file in &non_task_files {
+            eprintln!("  - {}", console::style(file).yellow());
+        }
+        eprintln!("\n{}", console::style("To fix this:").bold());
+        eprintln!("  1. Commit project files separately: {}", console::style("git commit -m \"Your message\"").cyan());
+        eprintln!("  2. Then use 'tasks save' for task files only");
+        eprintln!("\nOr unstage non-task files: {}", console::style("git restore --staged <file>").cyan());
+        bail!("Staged files outside .repo-tasks/ directory");
+    }
 
     // Stage .repo-tasks/ directory
     let mut index = repo.index()?;
