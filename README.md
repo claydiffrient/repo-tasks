@@ -18,10 +18,26 @@
 
 ## Installation
 
+### From GitHub Releases (Recommended)
+
+Download pre-built binaries from the [releases page](https://github.com/claydiffrient/repo-tasks/releases).
+
+**Verify your download:**
+```bash
+# Download verification script
+curl -LO https://raw.githubusercontent.com/claydiffrient/repo-tasks/main/scripts/verify-release.sh
+chmod +x verify-release.sh
+
+# Verify the binary
+./verify-release.sh v0.1.0 repo-tasks-x86_64-apple-darwin.tar.gz
+```
+
+See [scripts/README.md](scripts/README.md) for detailed verification instructions.
+
 ### From Source
 
 ```bash
-git clone https://github.com/yourusername/repo-tasks
+git clone https://github.com/claydiffrient/repo-tasks
 cd repo-tasks
 cargo install --path .
 ```

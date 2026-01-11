@@ -60,9 +60,27 @@ jobs:
             ### Windows
             Download `repo-tasks-x86_64-pc-windows-msvc.zip` and extract to a directory in your PATH.
 
-            ## Checksums
+            ## Verifying Downloads
 
-            See `checksums.txt` for SHA256 checksums of all release artifacts.
+            All release artifacts include SHA256 checksums for verification.
+
+            **Download the checksums file:**
+            ```bash
+            curl -LO https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/checksums.txt
+            ```
+
+            **Verify your download:**
+            ```bash
+            # macOS/Linux
+            shasum -a 256 -c checksums.txt --ignore-missing
+
+            # Windows (PowerShell)
+            $expected = (Get-Content checksums.txt | Select-String "repo-tasks-x86_64-pc-windows-msvc.zip").ToString().Split()[0]
+            $actual = (Get-FileHash repo-tasks-x86_64-pc-windows-msvc.zip -Algorithm SHA256).Hash.ToLower()
+            if ($expected -eq $actual) { Write-Host "✓ Checksum verified" } else { Write-Host "✗ Checksum mismatch" }
+            ```
+
+            Individual checksum files are also available for each artifact (e.g., `repo-tasks-x86_64-apple-darwin.tar.gz.sha256`).
 
   build:
     name: Build ${{ matrix.target }}
