@@ -103,9 +103,47 @@ homebrew-repo-tasks/
 - Linux x86_64
 - Linux ARM64
 
-## Future Updates
+## Automated Homebrew Updates
 
-For future releases:
+The release workflow automatically updates the Homebrew formula when a new release is created.
+
+### Setup Required
+
+Create a GitHub Personal Access Token (PAT) with push access to the tap repository:
+
+1. Go to **GitHub Settings** → **Developer settings** → **Personal access tokens** → **Fine-grained tokens**
+2. Click **Generate new token**
+3. Configure the token:
+   - **Name**: "Homebrew Tap Updates"
+   - **Expiration**: Choose appropriate duration
+   - **Repository access**: Only select repositories → `homebrew-repo-tasks`
+   - **Permissions**:
+     - **Contents**: Read and write
+4. Generate token and copy it
+5. Add to repo secrets:
+   - Go to **repo-tasks** repository → **Settings** → **Secrets and variables** → **Actions**
+   - Click **New repository secret**
+   - **Name**: `HOMEBREW_TAP_TOKEN`
+   - **Value**: Paste the token
+   - Save
+
+### How It Works
+
+When you create a new release (tag format `v*`):
+
+1. Release workflow builds binaries for all platforms
+2. Generates SHA256 checksums
+3. Automatically updates `homebrew-repo-tasks/Formula/repo-tasks.rb`:
+   - Updates version number
+   - Updates download URLs
+   - Updates SHA256 checksums for all platforms
+4. Commits and pushes to tap repository
+
+**No manual intervention needed!**
+
+### Manual Updates (If Needed)
+
+For future releases if automation fails:
 
 1. Update version number in formula
 2. Update URLs to new release tag

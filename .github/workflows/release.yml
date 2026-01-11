@@ -223,3 +223,62 @@ jobs:
           asset_path: ./checksums.txt
           asset_name: checksums.txt
           asset_content_type: text/plain
+
+  update-homebrew:
+    name: Update Homebrew formula
+    needs: [create-release, generate-checksums]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout homebrew tap
+        uses: actions/checkout@v4
+        with:
+          repository: claydiffrient/homebrew-repo-tasks
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-repo-tasks
+
+      - name: Download checksums
+        run: |
+          curl -fsSL "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/checksums.txt" -o checksums.txt
+          cat checksums.txt
+
+      - name: Extract checksums
+        id: checksums
+        run: |
+          MACOS_X86_64=$(grep "repo-tasks-x86_64-apple-darwin.tar.gz" checksums.txt | awk '{print $1}')
+          MACOS_AARCH64=$(grep "repo-tasks-aarch64-apple-darwin.tar.gz" checksums.txt | awk '{print $1}')
+          LINUX_X86_64=$(grep "repo-tasks-x86_64-unknown-linux-gnu.tar.gz" checksums.txt | awk '{print $1}')
+          LINUX_AARCH64=$(grep "repo-tasks-aarch64-unknown-linux-gnu.tar.gz" checksums.txt | awk '{print $1}')
+
+          echo "macos_x86_64=$MACOS_X86_64" >> $GITHUB_OUTPUT
+          echo "macos_aarch64=$MACOS_AARCH64" >> $GITHUB_OUTPUT
+          echo "linux_x86_64=$LINUX_X86_64" >> $GITHUB_OUTPUT
+          echo "linux_aarch64=$LINUX_AARCH64" >> $GITHUB_OUTPUT
+
+      - name: Update formula
+        run: |
+          cd homebrew-repo-tasks
+          VERSION="${{ needs.create-release.outputs.version }}"
+
+          # Update the formula file
+          sed -i "s/version \".*\"/version \"$VERSION\"/" Formula/repo-tasks.rb
+          sed -i "s|releases/download/v.*/repo-tasks-x86_64-apple-darwin.tar.gz|releases/download/v$VERSION/repo-tasks-x86_64-apple-darwin.tar.gz|" Formula/repo-tasks.rb
+          sed -i "s|releases/download/v.*/repo-tasks-aarch64-apple-darwin.tar.gz|releases/download/v$VERSION/repo-tasks-aarch64-apple-darwin.tar.gz|" Formula/repo-tasks.rb
+          sed -i "s|releases/download/v.*/repo-tasks-x86_64-unknown-linux-gnu.tar.gz|releases/download/v$VERSION/repo-tasks-x86_64-unknown-linux-gnu.tar.gz|" Formula/repo-tasks.rb
+          sed -i "s|releases/download/v.*/repo-tasks-aarch64-unknown-linux-gnu.tar.gz|releases/download/v$VERSION/repo-tasks-aarch64-unknown-linux-gnu.tar.gz|" Formula/repo-tasks.rb
+
+          # Update SHA256 checksums
+          sed -i "0,/sha256 \".*\"/s//sha256 \"${{ steps.checksums.outputs.macos_x86_64 }}\"/" Formula/repo-tasks.rb
+          sed -i "0,/sha256 \".*\"/s//sha256 \"${{ steps.checksums.outputs.macos_aarch64 }}\"/" Formula/repo-tasks.rb
+          sed -i "0,/sha256 \".*\"/s//sha256 \"${{ steps.checksums.outputs.linux_x86_64 }}\"/" Formula/repo-tasks.rb
+          sed -i "0,/sha256 \".*\"/s//sha256 \"${{ steps.checksums.outputs.linux_aarch64 }}\"/" Formula/repo-tasks.rb
+
+          cat Formula/repo-tasks.rb
+
+      - name: Commit and push
+        run: |
+          cd homebrew-repo-tasks
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/repo-tasks.rb
+          git commit -m "Update formula to version ${{ needs.create-release.outputs.version }}"
+          git push
