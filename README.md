@@ -48,11 +48,22 @@ cargo install --path .
 cargo install repo-tasks
 ```
 
-### From Homebrew (coming soon)
+### From Homebrew
 
 ```bash
+# Add the tap
+brew tap claydiffrient/repo-tasks
+
+# Install repo-tasks
 brew install repo-tasks
 ```
+
+Or install directly without tapping:
+```bash
+brew install claydiffrient/repo-tasks/repo-tasks
+```
+
+**Note:** The Homebrew tap will be available after the first release (v0.1.0) is published.
 
 ## Quick Start
 
