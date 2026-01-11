@@ -7,6 +7,7 @@ pub mod open;
 pub mod save;
 pub mod search;
 pub mod show;
+pub mod start;
 pub mod update;
 
 pub use hooks::{install as hooks_install, list as hooks_list, uninstall as hooks_uninstall};
@@ -18,4 +19,5 @@ pub use open::open;
 pub use save::save;
 pub use search::search;
 pub use show::show;
+pub use start::start;
 pub use update::update;

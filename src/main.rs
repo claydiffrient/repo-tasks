@@ -5,7 +5,7 @@ mod commands;
 mod models;
 mod utils;
 
-use commands::{hooks_install, hooks_list, hooks_uninstall, init, list, move_task, new, open, save, search, show, update};
+use commands::{hooks_install, hooks_list, hooks_uninstall, init, list, move_task, new, open, save, search, show, start, update};
 use models::{Config, Task};
 
 #[derive(Parser)]
@@ -70,6 +70,11 @@ enum Commands {
         slug_or_id: String,
         /// New status (todo, in-progress, testing, done)
         new_status: String,
+    },
+    /// Start working on a task (move to in-progress + create git branch)
+    Start {
+        /// Task slug or ID
+        slug_or_id: String,
     },
     /// Open a task in your default editor
     Open {
@@ -141,6 +146,9 @@ fn main() -> Result<()> {
             new_status,
         } => {
             move_task(slug_or_id, new_status)?;
+        }
+        Commands::Start { slug_or_id } => {
+            start(slug_or_id)?;
         }
         Commands::Open { slug_or_id } => {
             open(slug_or_id)?;
