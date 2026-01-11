@@ -182,8 +182,13 @@ This tool is designed to be easily manipulated by AI agents:
 2. Generate timestamp ID: chrono::Local::now().format("%Y%m%d%H%M%S")
 3. Generate slug from title using slugify()
 4. Write .repo-tasks/tasks/todo/{id}-{slug}.md with frontmatter
-5. Optionally: Run `tasks save -m "Add new task"`
+5. Optionally: Run `tasks save` (auto-generated commit messages preferred)
 ```
+
+**Git Commit Preferences:**
+- Prefer `tasks save` without `-m` flag to use auto-generated commit messages
+- The auto-generated messages analyze file changes and create descriptive commits
+- Only use `-m` for custom commit messages when auto-generation isn't appropriate
 
 ## Testing
 
