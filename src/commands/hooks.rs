@@ -440,8 +440,81 @@ PREV_HEAD=$1
 NEW_HEAD=$2
 BRANCH_SWITCH=$3
 
-echo "repo-tasks: post-checkout hook (placeholder)"
-# TODO: Implement branch info logic
+# Only run on branch switches (not file checkouts)
+if [ "$BRANCH_SWITCH" != "1" ]; then
+    exit 0
+fi
+
+# Get current branch name
+BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+if [ -z "$BRANCH" ]; then
+    exit 0
+fi
+
+# Extract task ID from branch name (formats: task/TASKID or TASKID-slug)
+TASK_ID=""
+
+# Try task/TASKID format
+if echo "$BRANCH" | grep -qE '^task/[0-9]{{14}}'; then
+    TASK_ID=$(echo "$BRANCH" | grep -oE '[0-9]{{14}}' | head -1)
+# Try TASKID-slug format
+elif echo "$BRANCH" | grep -qE '^[0-9]{{14}}-'; then
+    TASK_ID=$(echo "$BRANCH" | grep -oE '^[0-9]{{14}}')
+fi
+
+# If no task ID found, exit silently
+if [ -z "$TASK_ID" ]; then
+    exit 0
+fi
+
+# Find repo-tasks binary
+REPO_TASKS_BIN="repo-tasks"
+if ! command -v "$REPO_TASKS_BIN" > /dev/null 2>&1; then
+    if [ -f "./target/release/repo-tasks" ]; then
+        REPO_TASKS_BIN="./target/release/repo-tasks"
+    elif [ -f "./target/debug/repo-tasks" ]; then
+        REPO_TASKS_BIN="./target/debug/repo-tasks"
+    else
+        exit 0
+    fi
+fi
+
+# Get task info
+TASK_INFO=$("$REPO_TASKS_BIN" show "$TASK_ID" 2>/dev/null)
+
+if [ $? -ne 0 ] || [ -z "$TASK_INFO" ]; then
+    # Task not found, exit silently
+    exit 0
+fi
+
+# Extract task details from output
+TASK_TITLE=$(echo "$TASK_INFO" | grep "^Task:" | sed 's/^Task: //')
+TASK_STATUS=$(echo "$TASK_INFO" | grep "^Status:" | sed 's/^Status: //')
+TASK_PRIORITY=$(echo "$TASK_INFO" | grep "^Priority:" | sed 's/^Priority: //')
+
+# Display task information
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📋 Working on task: $TASK_TITLE"
+echo "   ID: $TASK_ID"
+if [ -n "$TASK_STATUS" ]; then
+    echo "   Status: $TASK_STATUS"
+fi
+if [ -n "$TASK_PRIORITY" ]; then
+    echo "   Priority: $TASK_PRIORITY"
+fi
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Suggest moving to in-progress if status is todo
+if [ "$TASK_STATUS" = "todo" ]; then
+    echo ""
+    echo "💡 Tip: Move this task to in-progress?"
+    echo "   Run: tasks move $TASK_ID in-progress"
+fi
+
+echo ""
+
 exit 0
 "#,
             common_header
