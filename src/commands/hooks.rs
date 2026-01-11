@@ -347,16 +347,89 @@ exit 0
             common_header
         ),
         HookType::PrepareCommitMsg => format!(
-            r#"{}
+            r###"{}
 # Prepare-commit-msg hook: Add task context to commit template
 
 COMMIT_MSG_FILE=$1
 COMMIT_SOURCE=$2
 
-echo "repo-tasks: prepare-commit-msg hook (placeholder)"
-# TODO: Implement commit template logic
+# Only run for new commits (not merge, squash, etc.)
+if [ -n "$COMMIT_SOURCE" ] && [ "$COMMIT_SOURCE" != "template" ]; then
+    exit 0
+fi
+
+# Get current branch name
+BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+if [ -z "$BRANCH" ]; then
+    exit 0
+fi
+
+# Extract task ID from branch name (formats: task/TASKID or TASKID-slug)
+TASK_ID=""
+
+# Try task/TASKID format
+if echo "$BRANCH" | grep -qE '^task/[0-9]{{14}}'; then
+    TASK_ID=$(echo "$BRANCH" | grep -oE '[0-9]{{14}}' | head -1)
+# Try TASKID-slug format
+elif echo "$BRANCH" | grep -qE '^[0-9]{{14}}-'; then
+    TASK_ID=$(echo "$BRANCH" | grep -oE '^[0-9]{{14}}')
+fi
+
+# If no task ID found, exit
+if [ -z "$TASK_ID" ]; then
+    exit 0
+fi
+
+# Find repo-tasks binary
+REPO_TASKS_BIN="repo-tasks"
+if ! command -v "$REPO_TASKS_BIN" > /dev/null 2>&1; then
+    if [ -f "./target/release/repo-tasks" ]; then
+        REPO_TASKS_BIN="./target/release/repo-tasks"
+    elif [ -f "./target/debug/repo-tasks" ]; then
+        REPO_TASKS_BIN="./target/debug/repo-tasks"
+    else
+        exit 0
+    fi
+fi
+
+# Get task info (capturing stdout and stderr separately)
+TASK_INFO=$("$REPO_TASKS_BIN" show "$TASK_ID" 2>/dev/null)
+
+if [ $? -ne 0 ] || [ -z "$TASK_INFO" ]; then
+    # Task not found or error, just exit
+    exit 0
+fi
+
+# Extract task title and status from output
+TASK_TITLE=$(echo "$TASK_INFO" | grep "^Task:" | sed 's/^Task: //')
+TASK_STATUS=$(echo "$TASK_INFO" | grep "^Status:" | sed 's/^Status: //')
+
+if [ -z "$TASK_TITLE" ]; then
+    exit 0
+fi
+
+# Prepend task context to commit message
+TEMP_FILE="$COMMIT_MSG_FILE.tmp"
+
+# Add task reference
+echo "# Task: $TASK_TITLE" > "$TEMP_FILE"
+echo "# ID: $TASK_ID" >> "$TEMP_FILE"
+if [ -n "$TASK_STATUS" ]; then
+    echo "# Status: $TASK_STATUS" >> "$TEMP_FILE"
+fi
+echo "#" >> "$TEMP_FILE"
+echo "# Closes #$TASK_ID" >> "$TEMP_FILE"
+echo "" >> "$TEMP_FILE"
+
+# Append original commit message
+cat "$COMMIT_MSG_FILE" >> "$TEMP_FILE"
+
+# Replace original file
+mv "$TEMP_FILE" "$COMMIT_MSG_FILE"
+
 exit 0
-"#,
+"###,
             common_header
         ),
         HookType::PostCheckout => format!(
