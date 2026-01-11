@@ -50,6 +50,9 @@ enum Commands {
         /// Filter by tag
         #[arg(short, long)]
         tag: Option<String>,
+        /// Output format: table or list
+        #[arg(short = 'f', long, value_name = "FORMAT")]
+        format: Option<String>,
     },
     /// Show details of a specific task
     Show {
@@ -123,8 +126,9 @@ fn main() -> Result<()> {
             status,
             priority,
             tag,
+            format,
         } => {
-            list(status, priority, tag)?;
+            list(status, priority, tag, format)?;
         }
         Commands::Show { slug_or_id } => {
             show(slug_or_id)?;

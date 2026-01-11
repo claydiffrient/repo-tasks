@@ -213,6 +213,6 @@ Priority: Low
         .arg("High")
         .assert()
         .success()
-        .stdout(predicate::str::contains("high-priority"))
-        .stdout(predicate::str::contains("low-priority").not());
+        .stdout(predicate::str::contains("High Priority Task"))
+        .stdout(predicate::str::contains("Low Priority Task").not());
 }

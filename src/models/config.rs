@@ -3,6 +3,10 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 
+fn default_output_format() -> String {
+    "table".to_string()
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub project_name: String,
@@ -10,6 +14,8 @@ pub struct Config {
     pub priorities: Vec<String>,
     #[serde(default)]
     pub auto_commit: bool,
+    #[serde(default = "default_output_format")]
+    pub output_format: String,
 }
 
 impl Config {
@@ -37,6 +43,7 @@ impl Config {
                 "Critical".to_string(),
             ],
             auto_commit: false,
+            output_format: "table".to_string(),
         }
     }
 
@@ -91,6 +98,7 @@ mod tests {
         assert_eq!(config.statuses.len(), 4);
         assert_eq!(config.priorities.len(), 4);
         assert!(!config.auto_commit);
+        assert_eq!(config.output_format, "table");
     }
 
     #[test]
@@ -110,5 +118,6 @@ mod tests {
         assert_eq!(config.project_name, deserialized.project_name);
         assert_eq!(config.statuses, deserialized.statuses);
         assert_eq!(config.priorities, deserialized.priorities);
+        assert_eq!(config.output_format, deserialized.output_format);
     }
 }

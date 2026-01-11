@@ -7,7 +7,12 @@ use crate::utils;
 use crate::{Config, Task};
 
 /// List all tasks in a given status
-pub fn list(status: Option<String>, priority: Option<String>, tag: Option<String>) -> Result<()> {
+pub fn list(
+    status: Option<String>,
+    priority: Option<String>,
+    tag: Option<String>,
+    format: Option<String>,
+) -> Result<()> {
     // Check if initialized
     if !Config::is_initialized() {
         bail!("Not in a repo-tasks repository. Run 'tasks init' first.");
@@ -15,6 +20,17 @@ pub fn list(status: Option<String>, priority: Option<String>, tag: Option<String
 
     let config = Config::load()?;
     let status = status.unwrap_or_else(|| "todo".to_string());
+
+    // Determine output format (CLI flag overrides config)
+    let output_format = format.unwrap_or_else(|| config.output_format.clone());
+
+    // Validate format
+    if output_format != "table" && output_format != "list" {
+        bail!(
+            "Invalid format '{}'. Valid formats: table, list",
+            output_format
+        );
+    }
 
     // Validate status
     if !config.statuses.contains(&status) {
@@ -102,25 +118,31 @@ pub fn list(status: Option<String>, priority: Option<String>, tag: Option<String
     println!();
 
     // Print tasks
-    for task in tasks {
-        let task_priority = task.priority.as_deref().unwrap_or("Medium");
-        let priority_display = utils::priority_badge(task_priority);
-        let id_display = utils::task_id(&task.id);
-        let slug_display = utils::task_slug(&task.slug);
+    if output_format == "table" {
+        let table_output = utils::format_tasks_as_table(&tasks);
+        println!("{}", table_output);
+    } else {
+        // Original list format
+        for task in tasks {
+            let task_priority = task.priority.as_deref().unwrap_or("Medium");
+            let priority_display = utils::priority_badge(task_priority);
+            let id_display = utils::task_id(&task.id);
+            let slug_display = utils::task_slug(&task.slug);
 
-        print!(
-            "{} [{}] {} - {}",
-            priority_display, id_display, slug_display, task.title
-        );
+            print!(
+                "{} [{}] {} - {}",
+                priority_display, id_display, slug_display, task.title
+            );
 
-        // Show tags if present
-        if let Some(task_tags) = &task.tags {
-            if !task_tags.is_empty() {
-                print!(" {}", utils::tags(task_tags));
+            // Show tags if present
+            if let Some(task_tags) = &task.tags {
+                if !task_tags.is_empty() {
+                    print!(" {}", utils::tags(task_tags));
+                }
             }
-        }
 
-        println!();
+            println!();
+        }
     }
 
     Ok(())
