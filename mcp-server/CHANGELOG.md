@@ -5,6 +5,14 @@ All notable changes to the repo-tasks MCP server will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-01-11
+
+### Fixed
+
+- Binary detection now checks for both `tasks` (Homebrew default) and `repo-tasks` names
+- Updated error message to mention both binary names
+- Prioritizes `tasks` name check first for better Homebrew compatibility
+
 ## [0.1.0] - 2026-01-11
 
 ### Added

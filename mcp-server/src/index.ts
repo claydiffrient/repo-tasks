@@ -13,9 +13,10 @@ import { resolve } from "path";
 
 // Find the repo-tasks binary
 function findRepoTasksBinary(): string {
-  // Try common locations
+  // Try common locations and names
   const locations = [
-    "repo-tasks", // In PATH
+    "tasks", // Homebrew default name
+    "repo-tasks", // Full name in PATH
     "./target/release/repo-tasks", // Local release build
     "./target/debug/repo-tasks", // Local debug build
   ];
@@ -32,7 +33,7 @@ function findRepoTasksBinary(): string {
   }
 
   throw new Error(
-    "repo-tasks binary not found. Please install it or build from source."
+    "repo-tasks binary not found. Please install it (as 'tasks' or 'repo-tasks') or build from source."
   );
 }
 
