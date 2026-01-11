@@ -25,11 +25,11 @@ class RepoTasks < Formula
   end
 
   def install
-    bin.install "repo-tasks"
+    bin.install "repo-tasks" => "tasks"
   end
 
   test do
-    system "#{bin}/repo-tasks", "--version"
-    system "#{bin}/repo-tasks", "--help"
+    system "#{bin}/tasks", "--version"
+    system "#{bin}/tasks", "--help"
   end
 end
