@@ -91,6 +91,9 @@ enum Commands {
         /// Commit message (auto-generated if not provided)
         #[arg(short, long)]
         message: Option<String>,
+        /// Push to remote after committing
+        #[arg(short, long)]
+        push: bool,
     },
     /// Manage git hooks for task automation
     Hooks {
@@ -156,8 +159,8 @@ fn main() -> Result<()> {
         Commands::Search { query } => {
             search(query)?;
         }
-        Commands::Save { message } => {
-            save(message)?;
+        Commands::Save { message, push } => {
+            save(message, push)?;
         }
         Commands::Hooks { subcommand } => match subcommand {
             HooksSubcommand::Install { hook_name } => {

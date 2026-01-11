@@ -5,7 +5,7 @@ use git2::{Repository, Signature, StatusOptions};
 use crate::Config;
 
 /// Save (commit) changes to the repo-tasks directory
-pub fn save(message: Option<String>) -> Result<()> {
+pub fn save(message: Option<String>, push: bool) -> Result<()> {
     // Check if initialized
     if !Config::is_initialized() {
         bail!("Not in a repo-tasks repository. Run 'tasks init' first.");
@@ -112,7 +112,67 @@ pub fn save(message: Option<String>) -> Result<()> {
         commit_message.lines().next().unwrap_or(&commit_message)
     );
 
+    // Push to remote if requested
+    if push {
+        push_to_remote(&repo)?;
+    }
+
     Ok(())
+}
+
+/// Push to the remote repository
+fn push_to_remote(repo: &Repository) -> Result<()> {
+    // Find the remote (try 'origin' first)
+    let remote = match repo.find_remote("origin") {
+        Ok(remote) => remote,
+        Err(_) => {
+            // No origin remote, try any remote
+            let remotes = repo.remotes()?;
+            if remotes.is_empty() {
+                println!("\n{}", console::style("⚠ Warning: No remote configured, skipping push").yellow());
+                return Ok(());
+            }
+            let remote_name = remotes.get(0).unwrap();
+            repo.find_remote(remote_name)?
+        }
+    };
+
+    let remote_name = remote.name().unwrap_or("origin");
+
+    // Get the current branch
+    let head = repo.head()?;
+    let branch_name = if head.is_branch() {
+        head.shorthand().unwrap_or("HEAD")
+    } else {
+        println!("\n{}", console::style("⚠ Warning: Not on a branch, skipping push").yellow());
+        return Ok(());
+    };
+
+    // Push to remote
+    println!();
+    print!("Pushing to {}/{}...", remote_name, branch_name);
+    std::io::Write::flush(&mut std::io::stdout())?;
+
+    let mut remote = repo.find_remote(remote_name)?;
+    let refspec = format!("refs/heads/{}", branch_name);
+
+    match remote.push(&[&refspec], None) {
+        Ok(_) => {
+            println!(" {}", console::style("✓").green());
+            println!("{} Pushed to {}/{}", console::style("✓").green(), remote_name, branch_name);
+            Ok(())
+        }
+        Err(e) => {
+            println!(" {}", console::style("✗").red());
+            eprintln!("\n{} {}", console::style("✗ Push failed:").red().bold(), e);
+            eprintln!("\n{}", console::style("Tip:").dim());
+            eprintln!("  Run {} manually or check remote configuration", console::style("git push").cyan());
+            eprintln!("  Your commit was successful, only the push failed");
+
+            // Don't fail the whole operation since commit succeeded
+            Ok(())
+        }
+    }
 }
 
 /// Generate a commit message based on the changes
