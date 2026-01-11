@@ -5,6 +5,14 @@ All notable changes to the repo-tasks MCP server will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-01-11
+
+### Fixed
+
+- **Critical:** Fixed argument handling to properly support spaces and special characters in task titles, notes, and tags
+- Changed from `execSync` with string interpolation to `spawnSync` with array arguments
+- This fixes errors like "unexpected argument 'gap' found" when creating tasks with multi-word content
+
 ## [0.1.1] - 2026-01-11
 
 ### Fixed

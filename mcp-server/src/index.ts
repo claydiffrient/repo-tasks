@@ -7,7 +7,7 @@ import {
   ListToolsRequestSchema,
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
-import { execSync } from "child_process";
+import { execSync, spawnSync } from "child_process";
 import { existsSync } from "fs";
 import { resolve } from "path";
 
@@ -42,10 +42,21 @@ const REPO_TASKS_BIN = findRepoTasksBinary();
 // Execute repo-tasks command
 function executeCommand(args: string[]): string {
   try {
-    return execSync(`${REPO_TASKS_BIN} ${args.join(" ")}`, {
+    // Use spawnSync to properly handle arguments with spaces and special characters
+    const result = spawnSync(REPO_TASKS_BIN, args, {
       encoding: "utf-8",
       stdio: ["pipe", "pipe", "pipe"],
     });
+
+    if (result.error) {
+      throw result.error;
+    }
+
+    if (result.status !== 0) {
+      throw new Error(result.stderr || `Command failed with exit code ${result.status}`);
+    }
+
+    return result.stdout;
   } catch (error: any) {
     throw new Error(error.stderr || error.message);
   }
