@@ -2,6 +2,7 @@ use anyhow::{bail, Context, Result};
 use console::style;
 use std::fs;
 use std::path::{Path, PathBuf};
+#[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 
 use crate::utils;
