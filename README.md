@@ -321,22 +321,39 @@ LLM: [Reads config.json to understand structure]
 
 ### MCP Server
 
-For seamless integration with Claude Code and other MCP-compatible LLMs, `repo-tasks` includes a Model Context Protocol (MCP) server.
+For seamless integration with Claude Code and other MCP-compatible LLMs, `repo-tasks` includes a Model Context Protocol (MCP) server that's available as a separate npm package.
 
-**Setup:**
+**Installation:**
 
 ```bash
-# Install MCP server dependencies
-cd mcp-server
-npm install
+npm install -g @claydiffrient/repo-tasks-mcp-server
+```
 
-# Configure in Claude Code
-# Add to ~/.config/claude-code/mcp_settings.json:
+**Prerequisites:** The MCP server requires the `repo-tasks` CLI to be installed (see [Installation](#installation) above).
+
+**Configure in Claude Code:**
+
+Add to `~/.config/claude-code/mcp_settings.json`:
+
+```json
 {
   "mcpServers": {
     "repo-tasks": {
-      "command": "node",
-      "args": ["/absolute/path/to/repo-tasks/mcp-server/dist/index.js"]
+      "command": "repo-tasks-mcp"
+    }
+  }
+}
+```
+
+**Configure in Claude Desktop:**
+
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS:
+
+```json
+{
+  "mcpServers": {
+    "repo-tasks": {
+      "command": "repo-tasks-mcp"
     }
   }
 }
@@ -350,8 +367,9 @@ npm install
 - `start_task` - Begin work (move to in-progress + create branch)
 - `search_tasks` - Full-text search
 - `save_tasks` - Commit changes to git
+- `open_task` - Open task in editor
 
-With the MCP server, you can manage tasks through natural language in Claude Code. See [mcp-server/README.md](mcp-server/README.md) for detailed documentation.
+With the MCP server, you can manage tasks through natural language in Claude Code or Claude Desktop. See [mcp-server/README.md](mcp-server/README.md) for detailed documentation and examples.
 
 ## Development
 

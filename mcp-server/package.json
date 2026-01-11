@@ -1,5 +1,5 @@
 {
-  "name": "repo-tasks-mcp-server",
+  "name": "@claydiffrient/repo-tasks-mcp-server",
   "version": "0.1.0",
   "description": "MCP server for repo-tasks task management",
   "type": "module",
@@ -7,10 +7,26 @@
   "bin": {
     "repo-tasks-mcp": "dist/index.js"
   },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE-MIT",
+    "LICENSE-APACHE"
+  ],
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "postinstall": "node dist/check-binary.js || true"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/claydiffrient/repo-tasks.git",
+    "directory": "mcp-server"
+  },
+  "homepage": "https://github.com/claydiffrient/repo-tasks/tree/main/mcp-server",
+  "bugs": {
+    "url": "https://github.com/claydiffrient/repo-tasks/issues"
   },
   "keywords": [
     "mcp",
@@ -21,6 +37,12 @@
   ],
   "author": "Clay Diffrient",
   "license": "MIT OR Apache-2.0",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"
   },

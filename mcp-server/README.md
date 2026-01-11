@@ -25,31 +25,56 @@ The MCP server exposes all repo-tasks functionality through MCP tools:
 
 ## Installation
 
+### From npm (Recommended)
+
+Install the MCP server globally:
+
+```bash
+npm install -g @claydiffrient/repo-tasks-mcp-server
+```
+
+This will make the `repo-tasks-mcp` command available in your PATH.
+
 ### Prerequisites
 
-1. **repo-tasks CLI** must be installed:
+The MCP server requires the **repo-tasks CLI** to be installed. Install it using one of these methods:
+
+```bash
+# Homebrew (macOS/Linux)
+brew install claydiffrient/tap/repo-tasks
+
+# Cargo (all platforms)
+cargo install repo-tasks
+
+# From source
+git clone https://github.com/claydiffrient/repo-tasks.git
+cd repo-tasks
+cargo install --path .
+```
+
+**Note:** Node.js v18 or later is required for the MCP server.
+
+### From Source (Development)
+
+If you want to build from source or contribute:
+
+1. Clone the repository:
    ```bash
-   cargo install --path ..
-   # or if already installed
-   cargo install repo-tasks
+   git clone https://github.com/claydiffrient/repo-tasks.git
+   cd repo-tasks/mcp-server
    ```
 
-2. **Node.js** (v18 or later) for running the MCP server
-
-### Setup
-
-1. Install dependencies:
+2. Install dependencies:
    ```bash
-   cd mcp-server
    npm install
    ```
 
-2. Build the TypeScript code:
+3. Build the TypeScript code:
    ```bash
    npm run build
    ```
 
-3. Test the server:
+4. Test the server:
    ```bash
    node dist/index.js
    ```
@@ -59,6 +84,20 @@ The MCP server exposes all repo-tasks functionality through MCP tools:
 ### Claude Code
 
 Add to your Claude Code MCP settings (`~/.config/claude-code/mcp_settings.json`):
+
+**If installed via npm:**
+
+```json
+{
+  "mcpServers": {
+    "repo-tasks": {
+      "command": "repo-tasks-mcp"
+    }
+  }
+}
+```
+
+**If running from source:**
 
 ```json
 {
@@ -81,6 +120,20 @@ After adding the configuration, restart Claude Code or reload the MCP servers.
 
 The server also works with Claude Desktop. Add to `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS:
 
+**If installed via npm:**
+
+```json
+{
+  "mcpServers": {
+    "repo-tasks": {
+      "command": "repo-tasks-mcp"
+    }
+  }
+}
+```
+
+**If running from source:**
+
 ```json
 {
   "mcpServers": {
@@ -97,6 +150,14 @@ The server also works with Claude Desktop. Add to `~/Library/Application Support
 ### Other MCP Clients
 
 The server uses stdio transport and follows the standard MCP protocol. Configure your MCP client to run:
+
+**If installed via npm:**
+
+```bash
+repo-tasks-mcp
+```
+
+**If running from source:**
 
 ```bash
 node /path/to/mcp-server/dist/index.js
