@@ -2,3 +2,6 @@
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Git hook logs (debugging info, not needed in version control)
+.repo-tasks/hooks.log
