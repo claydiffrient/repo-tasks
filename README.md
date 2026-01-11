@@ -13,6 +13,7 @@
 - 🔄 **Git Integration** - Commit changes with auto-generated messages
 - 🏷️ **Flexible Filtering** - Filter by status, priority, or tags
 - 🤖 **LLM-Friendly** - Designed for easy AI agent manipulation
+- 🔌 **MCP Server** - Built-in Model Context Protocol server for Claude integration
 - 📦 **Single Binary** - No runtime dependencies (only 3.3 MB!)
 
 ## Installation
@@ -50,8 +51,8 @@ tasks new
 # List all todo tasks
 tasks list
 
-# Move a task to in-progress
-tasks move my-task in-progress
+# Start working on a task (move to in-progress + create branch)
+tasks start my-task
 
 # Search for tasks
 tasks search "bug fix"
@@ -154,6 +155,19 @@ Move tasks between statuses:
 - `in-progress` - Currently working on
 - `testing` - Ready for testing/review
 - `done` - Completed
+
+### Start Working on a Task
+
+```bash
+tasks start SLUG_OR_ID
+```
+
+Convenience command that:
+1. Moves the task to `in-progress` status
+2. Creates a git branch named `{id}-{slug}`
+3. Checks out the new branch
+
+This is the recommended way to begin work on a task as it sets up your workspace in one command.
 
 ### Search Tasks
 
@@ -277,6 +291,40 @@ LLM: [Reads config.json to understand structure]
      [Creates .repo-tasks/tasks/todo/20260108160000-implement-search.md]
      [Optionally runs: tasks save -m "Add search task"]
 ```
+
+### MCP Server
+
+For seamless integration with Claude Code and other MCP-compatible LLMs, `repo-tasks` includes a Model Context Protocol (MCP) server.
+
+**Setup:**
+
+```bash
+# Install MCP server dependencies
+cd mcp-server
+npm install
+
+# Configure in Claude Code
+# Add to ~/.config/claude-code/mcp_settings.json:
+{
+  "mcpServers": {
+    "repo-tasks": {
+      "command": "node",
+      "args": ["/absolute/path/to/repo-tasks/mcp-server/dist/index.js"]
+    }
+  }
+}
+```
+
+**Available Tools:**
+- `list_tasks` - List and filter tasks
+- `show_task` - View task details
+- `create_task` - Create new tasks
+- `move_task` - Move tasks between statuses
+- `start_task` - Begin work (move to in-progress + create branch)
+- `search_tasks` - Full-text search
+- `save_tasks` - Commit changes to git
+
+With the MCP server, you can manage tasks through natural language in Claude Code. See [mcp-server/README.md](mcp-server/README.md) for detailed documentation.
 
 ## Development
 

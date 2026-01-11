@@ -1,0 +1,31 @@
+{
+  "name": "repo-tasks-mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server for repo-tasks task management",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "repo-tasks-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "task-management",
+    "repo-tasks",
+    "llm",
+    "ai"
+  ],
+  "author": "Clay Diffrient",
+  "license": "MIT OR Apache-2.0",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  }
+}
